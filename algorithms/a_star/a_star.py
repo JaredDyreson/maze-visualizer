@@ -3,6 +3,7 @@
 from Graph import Graph
 from pprint import pprint as pp
 import numpy as np
+from Matrix import Matrix
 
 """
 This was taken from this source and heavily modified
@@ -13,10 +14,9 @@ The refactored code was done by Jared Dyreson.
 """
 
 class a_star:
-    def __init__(self, matrix: list):
+    def __init__(self, matrix: Matrix):
         self.matrix = matrix
-        arr = np.array(self.matrix)
-        self.matrix_height, self.matrix_width = arr.shape[0], arr.shape[1]
+        self.matrix_height, self.matrix_width = self.matrix.height, self.matrix.width 
         self.barriers = self.find_barriers()
 
     def find_barriers(self) -> list:
@@ -27,9 +27,9 @@ class a_star:
         """
 
         barrier_list = []
-        for x, outer_row in enumerate(self.matrix):
+        for x, outer_row in enumerate(self.matrix.grid):
           for y, element in enumerate(outer_row):
-            if(self.matrix[x][y] == 1): barrier_list.append((x, y))
+            if(self.matrix.get_value((x, y)) == 1): barrier_list.append((x, y))
         return barrier_list
 
     def diffr(self, items: list):
@@ -160,13 +160,4 @@ class a_star:
         """
 
         for point in path:
-          x_position, y_position = point[0], point[1]
-          self.matrix[x_position][y_position] = 4
-
-
-# grid = Graph({}).empty_matrix(9, 9)
-# algo = a_star(grid)
-# algo.matrix[0][1] = 1
-# path, cost = algo.search((0, 0), (0, 2))
-# algo.paint_path(path)
-# pp(algo.matrix)
+          self.matrix.set_value((point[0], point[1]), 4)

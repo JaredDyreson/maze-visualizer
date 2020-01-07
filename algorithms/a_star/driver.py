@@ -4,6 +4,7 @@ from Window import Window
 from Graph import Graph
 from a_star import a_star
 import json
+from Matrix import Matrix
 
 # Graph components
 
@@ -33,7 +34,9 @@ def load_grid(path_to_grid: str) -> list:
         return Graph({}).empty_matrix(9, 9)
 
 grid = load_grid("../../matricies/matrix_test.txt")
-algo = a_star(grid)
+matrix = Matrix(grid)
+
+algo = a_star(matrix)
 path, cost = algo.search((0, 0), (8, 8))
 algo.paint_path(path)
 
