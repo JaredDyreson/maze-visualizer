@@ -11,6 +11,7 @@ class Color(enum.Enum):
     BLACK = (0, 0, 0)
     BLUE = (0, 0, 255)
     GREEN = (0, 255, 0)
+    LIGHT_BLUE = (45, 78, 93)
     ORANGE = (255, 128, 0)
     RED = (255, 0, 0)
     WHITE = (255, 255, 255)

@@ -31,15 +31,21 @@ def load_grid(path_to_grid: str) -> list:
       try:
         return json.loads(in_file.read())
       except json.JSONDecodeError:
-        return Graph({}).empty_matrix(9, 9)
+        return Graph({}).empty_matrix(100, 100)
 
-grid = load_grid("../../matricies/matrix_test.txt")
-matrix = Matrix(grid)
+grid = Graph({}).empty_matrix(9, 9)
+def run_headless():
+  matrix = Matrix(grid)
 
-algo = a_star(matrix)
-path, cost = algo.search((0, 0), (8, 8))
-algo.paint_path(path)
+  algo = a_star(matrix)
+  path, cost = algo.search((0, 0), (5, 5))
+  algo.paint_path(path)
+  print("path taken: {}".format(path))
 
-w = Window(grid, "Maze Solving", [255,255], 23, 23, 5)
-w.run()
-# w.save_grid("../../matricies/matrix_test.txt")
+def run_gui():
+  w = Window(grid, "Maze Solving", [500, 500], 35, 35, 0)
+  w.run()
+
+run_headless()
+# run_gui()
+# w.save_grid("../../matricies/larger_matrix.txt")

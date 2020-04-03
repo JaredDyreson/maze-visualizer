@@ -95,6 +95,7 @@ class Window:
       2 --> starting position, also a free space (Green)
       3 --> ending position, also a free space (Red)
       4 --> path color (Blue)
+      5 --> closed verticies (Light Blue)
       """
       for row in range(self.matrix_height):
           for column in range(self.matrix_width):
@@ -105,6 +106,7 @@ class Window:
               elif(position == 2): color = self.colors.GREEN.value
               elif(position == 3): color = self.colors.RED.value
               elif(position == 4): color = self.colors.BLUE.value
+              elif(position == 5): color = self.colors.LIGHT_BLUE.value
 
               pygame.draw.rect(self.screen,
                                color,
@@ -128,6 +130,7 @@ class Window:
                   column = cursor_position[0] // (self.cell_width + self.cell_margin)
                   row = cursor_position[1] // (self.cell_height + self.cell_margin)
                   self.matrix[row][column] = 1
+                  print("({}, {})".format(row, column))
        
           self.screen.fill(self.colors.BLACK.value)
           self.draw_grid()

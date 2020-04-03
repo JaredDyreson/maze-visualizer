@@ -93,7 +93,7 @@ def AStarSearch(start, end, graph):
  
 if __name__=="__main__":
 	graph = AStarGraph()
-	result, cost = AStarSearch((0,0), (7,7), graph)
+	result, cost = AStarSearch((0,0), (49, 49), graph)
 	print ("route", graph)
 	print ("cost", cost)
 	plt.plot([v[0] for v in result], [v[1] for v in result])

@@ -4,6 +4,9 @@ from Graph import Graph
 from pprint import pprint as pp
 import numpy as np
 from Matrix import Matrix
+from Node import Node
+import json
+from Window import Window
 
 """
 This was taken from this source and heavily modified
@@ -58,6 +61,28 @@ class a_star:
         container[i] = abs(self.diffr(element))
       return d * (sum(container)) + ((d-2)*d) * min(*container)
 
+    def euclidean_heuristic(self, *args):
+
+        """
+        Distance formula for an arbitrary number of points
+        and dimensions in Euclidean space.
+        """
+
+        container = []
+        for i, point in enumerate(args):
+          for j, element in enumerate(point):
+            try: container[j]
+            except IndexError: container.append([])
+            container[j].append(element)
+        for i, element in enumerate(container):
+            container[i] = self.diffr(element)**2
+        return (sum(container))**0.5
+
+    def manhattan_heuristic(self, initial: tuple, final: tuple):
+        x_init, x_final = initial[0], final[0]
+        y_init, y_final = initial[1], final[1]
+        return abs(x_init - x_final) + abs(y_init - y_final)
+
     def has_duplicate(self, term: object, container: list) -> bool:
 
         """
@@ -96,12 +121,13 @@ class a_star:
 
         possible_avenues = []
         movements = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)] 
-        boundary = len(movements) - 1
+        x_boundary = self.matrix.height - 1
+        y_boundary = self.matrix.width - 1
         
         for dx, dy in movements:
           x_final = coordinate[0] + dx
           y_final = coordinate[1] + dy
-          if not ((x_final < 0) or (x_final > boundary) or (y_final < 0) or (y_final > boundary)):
+          if not ((x_final < 0) or (x_final > x_boundary) or (y_final < 0) or (y_final > y_boundary)):
             possible_avenues.append((x_final, y_final))
         return possible_avenues
 
@@ -166,8 +192,86 @@ class a_star:
         for point in path:
           self.matrix.set_value((point[0], point[1]), 4)
 
+    def total_f_score(self, container: list) -> float:
+        scores = [element.f for element in container]
+        return float(sum(scores))
+
+    def search_again(self, start: tuple, end: tuple) -> list:
+       origin = Node(None, start)
+       end = Node(None, end)
+       
+       open_list = [origin]
+       closed_list = []
+       while len(open_list) > 0:
+         current_node = open_list[0]
+         i = 0
+         # Going through the open list, finding the node with the least cost
+         for index, item in enumerate(open_list):
+           if(item.f < current_node.f):
+             current_node = item
+             i = index
+         # Once we found the lowest one, we take it out of the available nodes to go to
+         open_list.pop(i)
+         closed_list.append(current_node)
+         self.matrix.set_value(current_node.position, 5)
+
+         # We found the goal
+
+         if(current_node == end):
+           path = []
+           current = current_node
+           while current is not None:
+             path.append(current.position)
+             current = current.parent
+           return path[::-1]
+
+         children = []
+         for neighbor in self.get_vertex_neighbors(current_node.position):
+           children.append(Node(current_node, neighbor))
+           
+           for child in children:
+             cost = 1
+             if(child.position in self.barriers): cost = 100
+             child.g = current_node.g + cost
+             child.h = self.euclidean_heuristic(child.position, end.position)
+             child.f = child.g + child.h
+
+             open_list.append(child)
+       raise RuntimeError("Cannot find solution")
+
     def check_coordinate(self, *args) -> None:
        for point in args:
          for coordinate in point:
            if(coordinate < 0): 
              raise IndexError("{} contains a negative value".format(point))
+    def in_range(self, coordinate: Node):
+        if(
+          (coordinate.x > self.matrix.height - 1) or
+          (coordinate.x < 0) or
+          (coordinate.y > self.matrix.width - 1) or
+          (coordinate.y < 0)
+        ): return True
+        return False
+            
+
+def load_grid(path_to_grid: str) -> list:
+  """
+  Read in the matrix from a text file.
+  Throw exception if the data is malformed.
+  """
+
+  with open(path_to_grid) as in_file:
+      try:
+        return json.loads(in_file.read())
+      except json.JSONDecodeError:
+        return Graph({}).empty_matrix(100, 100)
+
+grid = load_grid("../../matricies/copy_graph.txt")
+matrix = Matrix(grid)
+
+algo = a_star(matrix)
+path = algo.search_again((0, 0), (8, 3))
+algo.paint_path(path)
+w = Window(grid, "Maze Solving", [255, 255], 23, 23, 5)
+w.run()
+# w.save_grid("../../matricies/copy_graph.txt")
